@@ -1,97 +1,87 @@
-## Control de templado usando un PID (controlador proporcional, integral y derivativo) 
+## Temperature Control Using a PID (Proportional, Integral, and Derivative Controller)
 
 Castillo Josefina, Preve E. Kiernan
 
-Universidad Nacional de San Luis
- 
-### Resumen
+National University of San Luis
 
-En aplicaciones industriales, se necesita mantener el chocolate que se encuentra en templado a temperatura de trabajo. 
+### Abstract
 
-Para este problema existe una posible solución: un controlador P.I.D., que calcula un valor de error como la diferencia entre un punto de medida y un punto deseado, e intenta minimizar este error en una salida. Lo que se quiere lograr es que la salida se ajuste a su setpoint (valor de referencia al que queremos llegar). 
+In industrial applications, it is necessary to maintain tempered chocolate at its working temperature.
 
-Para este experimento se trabajó con 400 gramos de chocolate semi-amargo.  Según el nivel de pureza se tendrán diferentes puntos de fusión para cada tipo de chocolate, para este caso, se encontraría entre 45°-50°.
+A potential solution for this problem is a PID controller, which calculates an error value as the difference between a measured point and a desired point and attempts to minimize this error in its output. The goal is for the output to adjust to its setpoint (reference value we aim to reach).
 
-El chocolate líquido a 32° posee un calor específico de 0.56 kcalkg °C, mientras que el chocolate sólido tiene un calor específico de 0.30 kcalkg °C [1].
+For this experiment, 400 grams of semi-dark chocolate were used. Depending on the purity level, each type of chocolate will have different melting points; in this case, it ranges between 45°-50°C.
 
+Liquid chocolate at 32°C has a specific heat of 0.56 kcal/kg°C, while solid chocolate has a specific heat of 0.30 kcal/kg°C [1].
 
-### Otros casos de uso para un PID
+### Other Use Cases for a PID
 
-Se puede utilizar este tipo de controladores para una gran variedad de aplicaciones, tales como:
+This type of controller can be used in a wide variety of applications, such as:
 
-Estabilización de un cohete durante la fase de despegue.
-Control de movilidad de un vehículo de exploración espacial (Rover).
-Implementación del modo crucero en un automóvil. 
+- Rocket stabilization during the launch phase.
+- Mobility control of a space exploration vehicle (Rover).
+- Implementation of cruise control in an automobile.
 
+### Modeling
 
+The PID sensor comprises three components: proportional, integral, and derivative signals.
 
-### Modelado
+- **Proportional (P):** Increases exponentially to reach the setpoint, focusing on a precise measurement value (the one currently being measured). It consists of the product of the measurement error and a constant \( K_p \).  
+- **Integral (I):** Checks the accumulated error over time (i.e., focuses on errors from previous measurements) and updates the current component. This reduces and eliminates the steady-state error caused by external disturbances, which cannot be corrected by proportional control alone. It also depends on a constant \( K_i \).  
+- **Derivative (D):** Focuses on future measurement errors. The derivative action aims to keep the error at a minimum by correcting it proportionally to its rate of change. This prevents the error from increasing and avoids values exceeding the setpoint. When the derivative action time is large, instability occurs. When it is small, the variable oscillates excessively around the setpoint. [3]
 
-	El sensor PID se compone de una señal proporcional, una integral, y una derivativa. 
+The output is the sum of these three signals.  
+This characterizes a delay time used to control the on/off state of the resistors, as given by the equation:  
 
-Proporcional (P): asciende exponencialmente para llegar al setpoint, centrándose en un valor preciso de medida (el que se está midiendo en el momento) y consiste en el producto entre el error de la medida y una constante Kp. 
-Integral (I): revisa el error acumulado en el tiempo (es decir, se enfoca en errores de las medidas que tenemos hasta el momento) y actualiza la componente actual, es decir, disminuye y elimina el error en estado estacionario, provocado por perturbaciones exteriores y los cuales no pueden ser corregidos por el control proporcional. También depende de una constante Ki.
-Derivativa (D): se centra en los errores futuros de las medidas. La función de la acción derivativa es mantener el error al mínimo corrigiéndolo proporcionalmente con la misma velocidad con la que se produce; de esta manera evita que el error se incremente y también que los valores excedan el setpoint. Cuando el tiempo de acción derivada es grande, hay inestabilidad en el proceso. Cuando el tiempo de acción derivada es pequeño la variable oscila demasiado con relación al punto de consigna. [3]
+error = Tset-T(t)
 
-La salida será igual a la suma de estas tres señales.
-Esto caracterizará un tiempo de retardo utilizado para controlar el apagado/encendido de las resistencias, dado por la ecuación
+tretardo = Kp [e + Ki(Iprev + e(t-tprev)) + Kd (e-eprev)/(t-tprev)]
 
-
-
-                                             error = Tset-T(t)			    [3]
-
-      tretardo = Kp [e + Ki(Iprev+e(t-tprev)) +Kd (e-eprev)/(t-tprev)]  
- 	
 
 ![fig1](fig1.jpg)
 
-Figura 1: Elementos que componen la señal del sensor PID  
+**Figure 1:** Components of the PID sensor signal
 
+### Experimental Setup
 
-### Configuración experimental
+A makeshift stove was assembled using refractory bricks and three resistors functioning as a single unit, dissipating 270 W. Due to the specific configuration of this system, where resistors are turned on in an enclosed space, the heat storage in the bricks makes it harder to lower the temperature. As a result, the final temperature may exceed the initial setpoint.  
 
-Se comienza armando una especie de hornalla con ladrillos refractarios y tres resistencias que funcionarán como una sola que disipa 270 W. Debido a la configuración de este sistema en particular, donde a la hora de encender las resistencias no habrá suficiente espacio para dejar escapar el calor, los ladrillos lo “almacenarán”, haciendo que resulte más difícil disminuir la temperatura. Es por eso que una de las situaciones que podrían ocurrir es  que la temperatura final no se encuentre en el Tset inicial, sino que sea mayor a éste.  
+![fig2](fig2.jpg)
 
-![fig1](fig2.jpg)
+The chocolate is heated in a savarin mold, with the resistors placed beneath it and powered by a 220 V current (Figure 2). The goal, in conjunction with the PID sensor, is to maintain the base temperature stable at 45°C.
 
-El chocolate se calienta en un savarín, y bajo él las resistencias son alimentadas por una corriente de 220 V (Figura 2). Junto con el sensor PID se pretende mantener la temperatura de la base estable, a 45 °C.
+### Results
 
+![fig3](fig3.jpg)
 
+In **Figure 3**, certain inhomogeneities can be observed in the container. These must be considered during measurement since different base points do not reach the same temperature simultaneously. However, the chocolate, which will cover the entire bottom, smooths these irregularities by distributing the heat evenly. Additionally, the thermometer visible in the image features insulating glue, which dissipates heat much slower than the metallic surface, conserving it for a longer time. This generates a delay between the chocolate’s temperature and the sensor reading.
 
-### Resultados
+![fig4](fig4.jpg)
 
-![fig1](fig3.jpg)
+**Figure 4**
 
-	En la figura 3 pueden observarse ciertas inhomogeneidades en el recipiente. Esto ha de tenerse en cuenta a la hora de medir, pues es importante saber que los diferentes puntos de la base no llegan a la misma temperatura al mismo tiempo, pero en presencia del chocolate que cubrirá todo el fondo, estas irregularidades se suavizan debido a que éste distribuiye la temperatura uniformemente. Además, puede verse que el termómetro visible en la imagen cuenta con un pegamento aislante, el cual disipa el calor mucho más lentamente que la superficie metálica, conservándolo por mucho más tiempo, y a la vez generando un tiempo de demora entre la temperatura del chocolate y el sensor en su interior.
+Due to the refractory brick beneath the resistors, the final temperature of the chocolate was two degrees higher than the setpoint. This ceramic material has low thermal conductivity, retaining some heat for a considerable time.
 
-![fig1](fig4.jpg)
-Figura 4
+This PID was configured to control the savarin mold’s base temperature, where a thermometer was placed to provide control values. Another thermometer recorded the temperature beneath the container, near the resistors (Figure 4).  
 
+Temperature stability at the setpoint was achieved in approximately 40 minutes, with a thermal difference between the two sensors of \( (6.15 \pm 0.5)^\circ C \) (Figure 5).  
 
-Debido al ladrillo refractario sobre el que están colocadas las resistencias, la temperatura final a la que finalmente llega el chocolate resulta ser dos grados mayor a lo seteado, pues este material cerámico posee una baja conductividad térmica, almacenando parte del calor por un tiempo considerable.
+![fig5](fig5.jpg)
 
-Se trabajó este PID para actuar sobre la temperatura de la base del savarín, en la cual se encontraba un termómetro, el cual nos daría valores sobre los cuales controlar. Mientras tanto, otro termómetro junto a las resistencias registra la temperatura por debajo del recipiente (Figura 4).
-Se llegó a la estabilidad en la temperatura seteada aproximadamente a los 40 minutos, siendo la diferencia térmica entre los dos sensores de(6.150.5)ºC (Figura 5)
+**Figure 5**
 
-![fig1](fig5.jpg)
-    Figura 5
+### Conclusion
 
+It is feasible to control a system’s temperature using only resistors, sensors, and an Arduino board programmed with a PID code written by the team. This setup can reach and maintain a desired temperature over time.  
 
+Careful selection of suitable materials is crucial, especially the surface on which the controlled system rests, as well as the ambient temperature. If the latter is too close to the setpoint, the control system's stability might degrade.
 
+### References
 
-### Conclusión
+[1] Rudolf Plank, *“The Use of Cooling in the Food Industry,”* Section “Chocolate and Sweets,” Chapter IV.  
+[2] Wikipedia, *“PID Controller”*  
+[3] *“Temperature Controller User Manual,”* Model 331, Lake Shore Cryotronics, Inc.
 
-Es factible controlar la temperatura de un sistema solo con resistencias, sensores y una placa arduino con un código que se comporta como un PID, escrito por el equipo; pudiendo llegar a una temperatura deseada y mantenerla estable en el tiempo.
-Hay que tener en cuenta la elección de los materiales adecuados, especialmente la superficie donde irá apoyado el sistema a controlar; así como también la propia temperatura del ambiente, dado que si esta es muy cercana a la seteada, posiblemente se degrade la estabilidad del control.
+#### Appendix
 
-
-
-### Bibliografía 
-[1] Rudolf Plank, “El empleo del frío en la industria de la alimentación”,  Sección “Chocolate y dulces”, Capítulo IV
-
-[2] Wikipedia, “Controlador PID” 
-
-[3] “Manual de usuario de controlador de temperatura”, Modelo 331, Lake Shore Cryotronics, Inc.
-
-#### Apéndice
-Tim Wescott, “PID without a PhD”
+Tim Wescott, *“PID without a PhD”*
